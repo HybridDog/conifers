@@ -24,7 +24,7 @@ local LEAVES_NARROWRADIUS = 3 -- For narrow typed conifers.
 local CONIFERS_DISTANCE = 4
 local CONIFERS_ALTITUDE = 30
 
-local REMOVE_TREES = false -- Remove trees above CONIFERS_ALTITUDE? It kills default trees from the top.
+local REMOVE_TREES = false -- Remove trees above CONIFERS_ALTITUDE?
 
 local SAPLING_CHANCE = 100 -- 1/x chances to grow a sapling.
 
@@ -176,15 +176,6 @@ minetest.register_node("conifers:sapling", {
 })
 
 
-conifers_c_air = minetest.get_content_id("air")
-conifers_c_tree = minetest.get_content_id("default:tree")
-conifers_c_leaves = minetest.get_content_id("default:leaves")
-conifers_c_dirt_with_grass = minetest.get_content_id("default:dirt_with_grass")
-
-conifers_c_con_trunk = minetest.get_content_id("conifers:trunk")
-conifers_c_con_leaves = minetest.get_content_id("conifers:leaves")
-conifers_c_con_leaves_special = minetest.get_content_id("conifers:leaves_special")
-
 
 --
 -- Craft definitions
@@ -331,12 +322,16 @@ function conifers:are_leaves_surrounded(pos)
 	--
 	-- Check if a leaves block does not interfer with something else than the air or another leaves block.
 	--
-	local replacable_nodes = {conifers_c_air, conifers_c_con_leaves, conifers_c_con_leaves_special}
+	local replacable_nodes = {
+		"air", 
+		"conifers:leaves", 
+		"conifers:leaves_special"
+	}
 
 	-- Let's check if the neighboring node is a replacable node.
 	for i = -1,1,2 do
-		if not (conifers:table_contains(replacable_nodes, nodes[area:index(pos.x+i, pos.y, pos.z)])
-			or conifers:table_contains(replacable_nodes, nodes[area:index(pos.x, pos.y, pos.z+i)])
+		if not (conifers:table_contains(replacable_nodes, minetest.get_node({x=pos.x+i, y=pos.y, z=pos.z}).name)
+			or conifers:table_contains(replacable_nodes, minetest.get_node({x=pos.x, y=pos.y, z=pos.z+i}).name)
 		) then
 			return true
 		end
@@ -356,23 +351,11 @@ end
 function conifers:add_leaves_block(pos, special, near_trunk)
 	if (not conifers:are_leaves_surrounded(pos))
 	or near_trunk then
-		local p_pos = area:index(pos.x, pos.y, pos.z)
 		if special == 0 then
-			nodes[p_pos] = conifers_c_con_leaves
+			minetest.add_node(pos , { name = "conifers:leaves" })
 		else
-			nodes[p_pos] = conifers_c_con_leaves_special
+			minetest.add_node(pos , { name = "conifers:leaves_special" })
 		end
-	end
-end
-
--- Put a small circle of leaves around the trunk.
---    [ ]
--- [ ][#][ ]
---    [ ]
-function conifers:add_small_leaves_circle(c, special)
-	for i = -1,1,2 do
-		conifers:add_leaves_block({x=c.x+i, y=c.y, z=c.z}, special, true)
-		conifers:add_leaves_block({x=c.x, y=c.y, z=c.z+i}, special, true)
 	end
 end
 
@@ -385,10 +368,6 @@ end
 --	1: bright leaves (special)
 --
 function conifers:make_leaves(c, radius_min, radius_max, special)
-	if radius_max <= 1 then
-		conifers:add_small_leaves_circle(c, special)
-		return
-	end
 	--
 	-- Using the midpoint circle algorithm from Bresenham we can trace a circle of leaves.
 	--
@@ -397,26 +376,42 @@ function conifers:make_leaves(c, radius_min, radius_max, special)
 		local m_z = r
 		local m_m = 5 - 4 * r		
 		while m_x <= m_z do
-			if r == 1 then
-				-- Add a square of leaves (fixing holes near the trunk).
-				-- [ ]   [ ]
-				--    [#]
-				-- [ ]   [ ]
-				for i = 1,-1,-2 do
-					for j = -1,1,2 do
-						conifers:add_leaves_block({x=c.x+j, y=c.y, z=c.z+i}, special)
-					end
+			if radius_max > 1 then
+				if r == 1 then
+					-- Add a square of leaves (fixing holes near the trunk).
+					-- [ ]   [ ]
+					--    [#]
+					-- [ ]   [ ]
+					conifers:add_leaves_block({x = -1 + c.x, 	y = c.y, z = 1 + c.z}, special)
+					conifers:add_leaves_block({x = 1 + c.x, 	y = c.y, z = 1 + c.z}, special)
+					conifers:add_leaves_block({x = -1 + c.x, 	y = c.y, z = -1 + c.z}, special)
+					conifers:add_leaves_block({x = 1 + c.x, 	y = c.y, z = -1 + c.z}, special)
+	 				--    [ ]
+					-- [ ][#][ ]
+					--    [ ]
+					conifers:add_leaves_block({x = c.x, 		y = c.y, z = -1 + c.z}, special, true)
+					conifers:add_leaves_block({x = c.x, 		y = c.y, z = 1 + c.z}, special, true)
+					conifers:add_leaves_block({x = -1 + c.x, 	y = c.y, z = c.z}, special, true)
+					conifers:add_leaves_block({x = 1 + c.x, 	y = c.y, z = c.z}, special, true)
+				else
+					conifers:add_leaves_block({x = m_x + c.x, 	y = c.y, z = m_z + c.z}, special)
+					conifers:add_leaves_block({x = m_z + c.x, 	y = c.y, z = m_x + c.z}, special)
+					conifers:add_leaves_block({x = -m_x + c.x, 	y = c.y, z = m_z + c.z}, special)
+					conifers:add_leaves_block({x = -m_z + c.x, 	y = c.y, z = m_x + c.z}, special)
+					conifers:add_leaves_block({x = m_x + c.x, 	y = c.y, z = -m_z + c.z}, special)
+					conifers:add_leaves_block({x = m_z + c.x, 	y = c.y, z = -m_x + c.z}, special)
+					conifers:add_leaves_block({x = -m_x + c.x, 	y = c.y, z = -m_z + c.z}, special)
+					conifers:add_leaves_block({x = -m_z + c.x, 	y = c.y, z = -m_x + c.z}, special)	
 				end
-
-				conifers:add_small_leaves_circle(c, special)
 			else
-				for i = -1,1,2 do
-					for j = -1,1,2 do
-						for _,a in ipairs({{m_x, m_z}, {m_z, m_x}}) do
-							conifers:add_leaves_block({x=j*a[1]+c.x, y=c.y, z=i*a[2]+c.z}, special)
-						end
-					end
-				end
+				-- Put a small circle of leaves around the trunk.
+ 				--    [ ]
+				-- [ ][#][ ]
+				--    [ ]
+				conifers:add_leaves_block({x = c.x, 		y = c.y, z = -1 + c.z}, special, true)
+				conifers:add_leaves_block({x = c.x, 		y = c.y, z = 1 + c.z}, special, true)
+				conifers:add_leaves_block({x = -1 + c.x, 	y = c.y, z = c.z}, special, true)
+				conifers:add_leaves_block({x = 1 + c.x, 	y = c.y, z = c.z}, special, true)
 			end
 			-- Stuff...
 			if m_m > 0 then
@@ -438,24 +433,11 @@ end
 --	1: narrow pine
 --
 function conifers:make_conifer(pos, conifer_type)
-	local height = math.random(TRUNK_MINHEIGHT, TRUNK_MAXHEIGHT) -- Random height of the conifer.
-
-	local t1 = os.clock()
-	local manip = minetest.get_voxel_manip()
-	local vwidth = LEAVES_MAXRADIUS+1
-	local emerged_pos1, emerged_pos2 = manip:read_from_map({x=pos.x-vwidth, y=pos.y, z=pos.z-vwidth},
-		{x=pos.x+vwidth, y=pos.y+height+1, z=pos.z+vwidth})
-
-	area = VoxelArea:new({MinEdge=emerged_pos1, MaxEdge=emerged_pos2})
-	nodes = manip:get_data()
-
 	-- Check if we can gros a conifer at this place.
-	local p_pos = area:index(pos.x, pos.y, pos.z)
-	local d_p_pos = nodes[p_pos]
-
-	if nodes[area:index(pos.x, pos.y-1, pos.z)] ~= conifers_c_dirt_with_grass
-	and (d_p_pos ~= conifers_c_air
-		or d_p_pos ~= conifers_c_con_sapling
+	local node = minetest.get_node(pos).name
+	if minetest.get_node({x=pos.x, y=pos.y-1, z=pos.z}).name ~= "default:dirt_with_grass"
+	and (node ~= "air"
+		or node ~= "conifers:sapling"
 	) then
 		return false
 	--else
@@ -463,16 +445,20 @@ function conifers:make_conifer(pos, conifer_type)
 			--minetest.add_node(pos , {name = "air"})
 		--end
 	end
+	
+	local height = math.random(TRUNK_MINHEIGHT, TRUNK_MAXHEIGHT) -- Random height of the conifer.
 
 	-- Let's check if we can grow a tree here.
 	-- That means, we must have a column of 'height' high which contains
 	-- only air.
 	for j = 1, height - 1 do -- Start from 1 so we can grow a sapling.
-		if nodes[area:index(pos.x, pos.y+j, pos.z)] ~= conifers_c_air then
+		if minetest.get_node({x=pos.x, y=pos.y+j, z=pos.z}).name ~= "air" then
 			-- Abort
 			return false
 		end
 	end
+
+	local t1 = os.clock()
 
 	local leaves_height = math.random(LEAVES_MINHEIGHT, LEAVES_MAXHEIGHT) -- Level from where the leaves grow.
 	local current_block = {} -- Duh...
@@ -484,7 +470,7 @@ function conifers:make_conifer(pos, conifer_type)
 	for i = 0, height - 1 do
 		current_block = {x=pos.x, y=pos.y+i, z=pos.z}
 		-- Put a trunk block.
-		nodes[area:index(pos.x, pos.y+i, pos.z)] = conifers_c_con_trunk
+		minetest.add_node(current_block , {name = "conifers:trunk"})
 		-- Put some leaves.
 		if i >= leaves_height then
 			-- Put some leaves.
@@ -498,9 +484,10 @@ function conifers:make_conifer(pos, conifer_type)
 				-- Check if the current radius is the maximum radius at this level.
 				if leaves_radius > leaves_max_radius then
 					leaves_radius = 1
+					leaves_max_radius = leaves_max_radius+1
 					-- Does it exceeds the maximum radius?
-					if leaves_max_radius < LEAVES_MAXRADIUS then
-						leaves_max_radius = leaves_max_radius+1
+					if leaves_max_radius > LEAVES_MAXRADIUS then
+						leaves_max_radius = LEAVES_MAXRADIUS
 					end
 				end
 			else -- Narrow type
@@ -517,15 +504,7 @@ function conifers:make_conifer(pos, conifer_type)
 	current_block.y = current_block.y+1
 	conifers:add_leaves_block(current_block, special)
 
-	manip:set_data(nodes)
-	manip:write_to_map()
-	print (string.format('[conifers] A conifer has grown at '..
-		'('..pos.x..','..pos.y..','..pos.z..')'..
-		' with a height of '..height..
-		' after ca. %.2fs', os.clock() - t1)
-	)	-- Blahblahblah
-	local t1 = os.clock()
-	manip:update_map()
-	print (string.format('[conifers] map updated after ca. %.2fs', os.clock() - t1))
+	-- Blahblahblah
+	print (string.format('[conifers] A conifer has grown at ('..pos.x..','..pos.y..','..pos.z..') with a height of '..height..' after ca. %.2fs', os.clock() - t1))
 	return true
 end
