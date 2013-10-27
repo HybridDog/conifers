@@ -108,7 +108,7 @@ minetest.register_node("conifers:leaves", {
 	paramtype = "light",
 	groups = {
 		snappy = 3,
-		leafdecay = 3,
+		--leafdecay = 3,
 		flammable = 2
 	},
 	drop = {
@@ -138,7 +138,7 @@ minetest.register_node("conifers:leaves_special", {
 	paramtype = "light",
 	groups = {
 		snappy = 3,
-		leafdecay = 3,
+		--leafdecay = 3,
 		flammable = 2
 	},
 	drop = {
