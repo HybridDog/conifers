@@ -228,7 +228,7 @@ minetest.register_abm({
 	interval = INTERVAL,
 	chance = 200.2,
 	
-	action = function(pos, node)
+	action = function(pos)
 		local p = {x=pos.x, y=pos.y+1, z=pos.z}
    		if minetest.get_node(p).name == "air"
    		and pos.y >= CONIFERS_ALTITUDE
@@ -335,9 +335,8 @@ function conifers:are_leaves_surrounded(pos)
 
 	-- Let's check if the neighboring node is a replacable node.
 	for i = -1,1,2 do
-		if not (conifers:table_contains(replacable_nodes, nodes[area:index(pos.x+i, pos.y, pos.z)])
-			or conifers:table_contains(replacable_nodes, nodes[area:index(pos.x, pos.y, pos.z+i)])
-		) then
+		if (not conifers:table_contains(replacable_nodes, nodes[area:index(pos.x+i, pos.y, pos.z)]))
+		or (not conifers:table_contains(replacable_nodes, nodes[area:index(pos.x, pos.y, pos.z+i)])) then
 			return true
 		end
 	end
