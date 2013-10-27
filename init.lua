@@ -26,7 +26,7 @@ local CONIFERS_ALTITUDE = 30
 
 local REMOVE_TREES = false -- Remove trees above CONIFERS_ALTITUDE?
 
-local SAPLING_CHANCE = 100 -- 1/x chances to grow a sapling.
+local SAPLING_CHANCE = 2 -- 1/x chances to grow a sapling.
 
 local INTERVAL = 3600
 
@@ -75,34 +75,6 @@ minetest.register_node("conifers:trunk", {
 	sounds = default.node_sound_wood_defaults()
 })
 
-minetest.register_node("conifers:trunk_reversed", {
-	description = "Conifer reversed trunk",
-	tile_images = { 
-		"conifers_trunk_reversed.png", 
-		"conifers_trunk_reversed.png",
-		"conifers_trunktop.png", 
-		"conifers_trunktop.png", 
-		"conifers_trunk_reversed.png", 
-		"conifers_trunk_reversed.png" 
-	},
-	--inventory_image = minetest.inventorycube(
-		--"conifers_trunk.png",
-		--"conifers_trunktop.png",
-		--"conifers_trunk.png"
-	--),
-	paramtype = "facedir_simple",
-	material = minetest.digprop_woodlike(1.0),
-	legacy_facedir_simple = true,
-	is_ground_content = true,
-	groups = {
-		tree = 1,
-		snappy = 2,
-		choppy = 2,
-		oddly_breakable_by_hand = 1,
-		flammable = 2
-	},
-	sounds = default.node_sound_wood_defaults()
-})
 
 minetest.register_node("conifers:leaves", {
 	description = "Conifer leaves",
@@ -124,11 +96,11 @@ minetest.register_node("conifers:leaves", {
 				items = {'conifers:sapling'},
 				rarity = 20,
 			},
-			{
+		--	{
 				-- player will get leaves only if he get no saplings,
 				-- this is because max_items is 1
-				items = {'conifers:leaves'},
-			}
+			--	items = {'default:leaves'},
+			--}
 		}
 	},
 	sounds = default.node_sound_leaves_defaults()
@@ -154,11 +126,11 @@ minetest.register_node("conifers:leaves_special", {
 				items = {'conifers:sapling'},
 				rarity = 20,
 			},
-			{
+			--{
 				-- player will get leaves only if he get no saplings,
 				-- this is because max_items is 1
-				items = {'conifers:leaves'},
-			}
+			--	items = {'default:leaves'},
+			--}
 		}
 	},
 	sounds = default.node_sound_leaves_defaults()
@@ -187,31 +159,9 @@ minetest.register_node("conifers:sapling", {
 -- Craft definitions
 --
 minetest.register_craft({
-	output = 'node "conifers:trunk_reversed" 2',
-	recipe = {
-		{'node "conifers:trunk"', 'node "conifers:trunk"'},
-	}
-})
-
-minetest.register_craft({
-	output = 'node "conifers:trunk" 2',
-	recipe = {
-		{'node "conifers:trunk_reversed"'},
-		{'node "conifers:trunk_reversed"'}
-	}
-})
-
-minetest.register_craft({
 	output = 'default:wood 4',
 	recipe = {
 		{'conifers:trunk'}
-	}
-})
-
-minetest.register_craft({
-	output = 'default:wood 4',
-	recipe = {
-		{'conifers:trunk_reversed'}
 	}
 })
 
