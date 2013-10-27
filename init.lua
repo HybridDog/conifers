@@ -229,7 +229,7 @@ minetest.register_abm({
    		and (not conifers:is_node_in_cube({"conifers:trunk"}, pos, CONIFERS_DISTANCE)) then
    			conifers:make_conifer(p, math.random(0, 1))
 		end
-    end
+	end
 })
 
 -- Saplings.
@@ -242,7 +242,7 @@ minetest.register_abm({
    		if minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z}).name == "air" then
    			conifers:make_conifer(pos, math.random(0, 1))
    		end
-    end
+	end
 })
 
 -- Should we remove all the trees above the conifers altitude?
@@ -278,12 +278,12 @@ end
 -- Taken from the Flowers mod by erlehmann.
 --
 function conifers:table_contains(t, v)
-    for _,i in ipairs(t) do
+	for _,i in ipairs(t) do
 		if i == v then
 			return true
 		end
-    end
-    return false
+	end
+	return false
 end
 
 --
@@ -293,7 +293,7 @@ end
 --
 function conifers:is_node_in_cube(nodenames, pos, size)
 	local hs = math.floor(size / 2)
-    for x = pos.x-size, pos.x+size do
+	for x = pos.x-size, pos.x+size do
 		for y = pos.y-hs, pos.y+hs do
 			for z = pos.z-size, pos.z+size do
 				n = minetest.get_node_or_nil({x=x, y=y, z=z})
@@ -304,8 +304,8 @@ function conifers:is_node_in_cube(nodenames, pos, size)
 				end
 			end
 		end
-    end
-    return false
+	end
+	return false
 end
 
 --
