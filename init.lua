@@ -1,16 +1,3 @@
---------------------------------------------------------------------------------
---
--- CONIFERS MOD
--- For Minetest
--- Created by Cisoun (cysoun[at]gmail.com).
---
--- This mod adds some conifers randomly at a certain altitude.
--- There are two types of conifers: regular and narrow.
--- You can define the altitude at which they spawn and their structure and
--- choose if you want to keep normal trees above this altitude.
---
---------------------------------------------------------------------------------
-
 -- Structure definitions.
 
 local TRUNK_MINHEIGHT = 7
@@ -29,6 +16,8 @@ local REMOVE_TREES = false -- Remove trees above CONIFERS_ALTITUDE? It kills def
 local SAPLING_CHANCE = 100 -- 1/x chances to grow a sapling.
 
 local INTERVAL = 3600
+
+local conifers_seed = 1435
 
 -- End of structure definitions.
 
@@ -223,14 +212,19 @@ minetest.register_craft({
 -- ABM definitions
 --
 -- Spawn random conifers.
+local function get_conifers_random(pos)
+	return PseudoRandom(math.abs(pos.x+pos.y*3+pos.z*5)+conifers_seed)
+end
 minetest.register_abm({
 	nodenames = "default:dirt_with_grass",
 	interval = INTERVAL,
-	chance = 200.2,
+	chance = 9.1,
 	
 	action = function(pos)
+		local pr = get_conifers_random(pos)
 		local p = {x=pos.x, y=pos.y+1, z=pos.z}
-   		if minetest.get_node(p).name == "air"
+		if pr:next(1,23) == 1
+   		and minetest.get_node(p).name == "air"
    		and pos.y >= CONIFERS_ALTITUDE
    		and (not conifers:is_node_in_cube({"conifers:trunk"}, pos, CONIFERS_DISTANCE)) then
    			conifers:make_conifer(p, math.random(0, 1))
