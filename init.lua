@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 --
--- CONIFERS MOD 0.3
--- For Minetest-c55
+-- CONIFERS MOD
+-- For Minetest
 -- Created by Cisoun (cysoun[at]gmail.com).
 --
 -- This mod adds some conifers randomly at a certain altitude.
@@ -53,9 +53,6 @@ minetest.register_node("conifers:trunk", {
 		"conifers_trunktop.png", 
 		"conifers_trunktop.png", 
 		"conifers_trunk.png", 
-		"conifers_trunk.png", 
-		"conifers_trunk.png", 
-		"conifers_trunk.png" 
 	},
 	--inventory_image = minetest.inventorycube(
 		--"conifers_trunktop.png", 
@@ -64,7 +61,6 @@ minetest.register_node("conifers:trunk", {
 	--),
 	paramtype = "facedir_simple",
 	material = minetest.digprop_woodlike(1.0),
-	is_ground_content = true,
 	groups = {
 		tree = 1,
 		snappy = 2,
@@ -75,15 +71,15 @@ minetest.register_node("conifers:trunk", {
 	sounds = default.node_sound_wood_defaults()
 })
 
+local tex_reversed_trunk = "conifers_trunk.png^[transformR90"
 minetest.register_node("conifers:trunk_reversed", {
 	description = "Conifer reversed trunk",
 	tile_images = { 
-		"conifers_trunk_reversed.png", 
-		"conifers_trunk_reversed.png",
+		tex_reversed_trunk, 
+		tex_reversed_trunk,
 		"conifers_trunktop.png", 
 		"conifers_trunktop.png", 
-		"conifers_trunk_reversed.png", 
-		"conifers_trunk_reversed.png" 
+		tex_reversed_trunk, 
 	},
 	--inventory_image = minetest.inventorycube(
 		--"conifers_trunk.png",
@@ -93,7 +89,6 @@ minetest.register_node("conifers:trunk_reversed", {
 	paramtype = "facedir_simple",
 	material = minetest.digprop_woodlike(1.0),
 	legacy_facedir_simple = true,
-	is_ground_content = true,
 	groups = {
 		tree = 1,
 		snappy = 2,
@@ -167,7 +162,6 @@ minetest.register_node("conifers:leaves_special", {
 minetest.register_node("conifers:sapling", {
 	description = "Conifer sapling",
 	drawtype = "plantlike",
-	visual_scale = 1.0,
 	tile_images = {"conifers_sapling.png"},
 	inventory_image = "conifers_sapling.png",
 	wield_image = "conifers_sapling.png",
@@ -187,17 +181,17 @@ minetest.register_node("conifers:sapling", {
 -- Craft definitions
 --
 minetest.register_craft({
-	output = 'node "conifers:trunk_reversed" 2',
+	output = "conifers:trunk_reversed 2",
 	recipe = {
-		{'node "conifers:trunk"', 'node "conifers:trunk"'},
+		{"conifers:trunk", "conifers:trunk"},
 	}
 })
 
 minetest.register_craft({
-	output = 'node "conifers:trunk" 2',
+	output = "conifers:trunk 2",
 	recipe = {
-		{'node "conifers:trunk_reversed"'},
-		{'node "conifers:trunk_reversed"'}
+		{"conifers:trunk_reversed"},
+		{"conifers:trunk_reversed"}
 	}
 })
 
@@ -226,7 +220,7 @@ minetest.register_abm({
 	chance = 1,
 	
 	action = function(pos, node, _, _)
-   		if minetest.env:get_node({x = pos.x, y = pos.y + 1, z = pos.z}).name == "air"
+   		if minetest.get_node({x = pos.x, y = pos.y + 1, z = pos.z}).name == "air"
    			and pos.y >= CONIFERS_ALTITUDE
    			and conifers:is_node_in_cube({"conifers:trunk"}, pos, CONIFERS_DISTANCE) == false
    		then
@@ -243,9 +237,9 @@ minetest.register_abm({
 	interval = INTERVAL,
 	chance = SAPLING_CHANCE,
 	
-	action = function(pos, node, _, _)
-   		if minetest.env:get_node({x = pos.x, y = pos.y + 1, z = pos.z}).name == "air" then
-   			conifers:make_conifer({x = pos.x, y = pos.y, z = pos.z}, math.random(0, 1))
+	action = function(pos, node)
+   		if minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z}).name == "air" then
+   			conifers:make_conifer(pos, math.random(0, 1))
    		end
     end
 })
@@ -260,11 +254,10 @@ if REMOVE_TREES == true then
 		interval = INTERVAL/100,
 		chance = 1,
 		
-		action = function(pos, node, _, _)
-			if minetest.env:get_node({x = pos.x, y = pos.y + 1, z = pos.z}).name == "air"
-				and pos.y >= CONIFERS_ALTITUDE
-			then
-				minetest.env:add_node(pos , {name = "air"})
+		action = function(pos, node)
+			if minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z}).name == "air"
+			and pos.y >= CONIFERS_ALTITUDE then
+				minetest.add_node(pos , {name = "air"})
 			end
 		end
 	})
@@ -301,7 +294,7 @@ function conifers:is_node_in_cube(nodenames, node_pos, radius)
     for x = node_pos.x - radius, node_pos.x + radius do
 		for y = node_pos.y - math.floor(radius / 2), node_pos.y + math.floor(radius / 2) do
 			for z = node_pos.z - radius, node_pos.z + radius do
-				n = minetest.env:get_node_or_nil({x = x, y = y, z = z})
+				n = minetest.get_node_or_nil({x = x, y = y, z = z})
 				if (n == nil)
 					or (n.name == 'ignore')
 					or (conifers:table_contains(nodenames, n.name) == true) then
@@ -330,10 +323,10 @@ function conifers:are_leaves_surrounded(pos)
 	--
 	-- Check if a leaves block does not interfer with something else than the air or another leaves block.
 	--
-	local node1 = minetest.env:get_node({x = pos.x + 1, y = pos.y, z = pos.z}).name
-	local node2 = minetest.env:get_node({x = pos.x - 1, y = pos.y, z = pos.z}).name
-	local node3 = minetest.env:get_node({x = pos.x, y = pos.y, z = pos.z + 1}).name
-	local node4 = minetest.env:get_node({x = pos.x, y = pos.y, z = pos.z - 1}).name
+	local node1 = minetest.get_node({x = pos.x + 1, y = pos.y, z = pos.z}).name
+	local node2 = minetest.get_node({x = pos.x - 1, y = pos.y, z = pos.z}).name
+	local node3 = minetest.get_node({x = pos.x, y = pos.y, z = pos.z + 1}).name
+	local node4 = minetest.get_node({x = pos.x, y = pos.y, z = pos.z - 1}).name
 	local replacable_nodes = {
 		"air", 
 		"conifers:leaves", 
@@ -364,9 +357,9 @@ end
 function conifers:add_leaves_block(pos, special, near_trunk)
 	if conifers:are_leaves_surrounded(pos) == false or near_trunk == true then
 		if special == 0 then
-			minetest.env:add_node(pos , { name = "conifers:leaves" })
+			minetest.add_node(pos , { name = "conifers:leaves" })
 		else
-			minetest.env:add_node(pos , { name = "conifers:leaves_special" })
+			minetest.add_node(pos , { name = "conifers:leaves_special" })
 		end
 	end
 end
@@ -446,15 +439,15 @@ end
 --
 function conifers:make_conifer(pos, conifer_type)
 	-- Check if we can gros a conifer at this place.
-	if minetest.env:get_node({x = pos.x, y = pos.y - 1, z = pos.z}).name ~= "default:dirt_with_grass"
-		and (minetest.env:get_node({x = pos.x, y = pos.y, z = pos.z}).name ~= "air"
-			or minetest.env:get_node({x = pos.x, y = pos.y, z = pos.z}).name ~= "conifers:sapling"
+	if minetest.get_node({x = pos.x, y = pos.y - 1, z = pos.z}).name ~= "default:dirt_with_grass"
+		and (minetest.get_node({x = pos.x, y = pos.y, z = pos.z}).name ~= "air"
+			or minetest.get_node({x = pos.x, y = pos.y, z = pos.z}).name ~= "conifers:sapling"
 		)
 	then
 		return false
 	--else
-		--if minetest.env:get_node({x = pos.x, y = pos.y, z = pos.z}).name == "conifers:sapling" then
-			--minetest.env:add_node(pos , {name = "air"})
+		--if minetest.get_node({x = pos.x, y = pos.y, z = pos.z}).name == "conifers:sapling" then
+			--minetest.add_node(pos , {name = "air"})
 		--end
 	end
 	
@@ -469,7 +462,7 @@ function conifers:make_conifer(pos, conifer_type)
 	-- That means, we must have a column of 'height' high which contains
 	-- only air.
 	for j = 1, height - 1 do -- Start from 1 so we can grow a sapling.
-		if minetest.env:get_node({x = pos.x, y = pos.y + j, z = pos.z}).name ~= "air" then
+		if minetest.get_node({x = pos.x, y = pos.y + j, z = pos.z}).name ~= "air" then
 			-- Abort
 			return false
 		end
@@ -483,7 +476,7 @@ function conifers:make_conifer(pos, conifer_type)
 			z = pos.z
 		}
 		-- Put a trunk block.
-		minetest.env:add_node(current_block , {name = "conifers:trunk"})
+		minetest.add_node(current_block , {name = "conifers:trunk"})
 		-- Put some leaves.
 		if i >= leaves_height then
 			-- Put some leaves.
