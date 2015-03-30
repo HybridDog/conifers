@@ -11,8 +11,6 @@ local LEAVES_NARROWRADIUS = 3 -- For narrow typed conifers.
 local CONIFERS_DISTANCE = 4
 local CONIFERS_ALTITUDE = 30
 
-local REMOVE_TREES = false -- Remove trees above CONIFERS_ALTITUDE? It kills default trees from the top.
-
 local SAPLING_CHANCE = 100 -- 1/x chances to grow a sapling.
 
 local INTERVAL = 3600
@@ -21,6 +19,10 @@ local conifers_seed = 1435
 
 -- End of structure definitions.
 
+
+if not minetest.delay_function then
+	dofile(minetest.get_modpath("conifers").."/function_delayer.lua")
+end
 
 
 conifers = {}
@@ -212,57 +214,64 @@ minetest.register_craft({
 -- ABM definitions
 --
 -- Spawn random conifers.
+
 local function get_conifers_random(pos)
 	return PseudoRandom(math.abs(pos.x+pos.y*3+pos.z*5)+conifers_seed)
 end
+
+local function conifer_abm_rand(pos)
+	local pr = get_conifers_random(pos)
+	local p = {x=pos.x, y=pos.y+1, z=pos.z}
+	if pr:next(1,23) == 1
+	and minetest.get_node(p).name == "air"
+	and pos.y >= CONIFERS_ALTITUDE
+	and (not conifers:is_node_in_cube({"conifers:trunk"}, pos, CONIFERS_DISTANCE)) then
+		conifers:make_conifer(p, math.random(0, 1))
+	end
+end
+
+local function conifer_abm_rand_delay(pos)
+	local node = minetest.get_node(pos)
+	if node.name == "default:dirt_with_grass" then
+		conifer_abm_rand(pos, node)
+	end
+end
+
 minetest.register_abm({
 	nodenames = "default:dirt_with_grass",
 	interval = INTERVAL,
 	chance = 9.1,
 	
 	action = function(pos)
-		local pr = get_conifers_random(pos)
-		local p = {x=pos.x, y=pos.y+1, z=pos.z}
-		if pr:next(1,23) == 1
-   		and minetest.get_node(p).name == "air"
-   		and pos.y >= CONIFERS_ALTITUDE
-   		and (not conifers:is_node_in_cube({"conifers:trunk"}, pos, CONIFERS_DISTANCE)) then
-   			conifers:make_conifer(p, math.random(0, 1))
-		end
+		minetest.delay_function(INTERVAL-1, conifer_abm_rand_delay, pos)
 	end
 })
 
+
 -- Saplings.
+
+local function conifer_abm_sapling(pos)
+	if minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z}).name == "air" then
+		conifers:make_conifer(pos, math.random(0, 1))
+	end
+end
+
+local function conifer_abm_sapling_delay(pos)
+	local node = minetest.get_node(pos)
+	if node.name == "conifers:sapling" then
+		conifer_abm_sapling(pos, node)
+	end
+end
+
 minetest.register_abm({
 	nodenames = "conifers:sapling",
 	interval = INTERVAL,
 	chance = SAPLING_CHANCE,
 	
-	action = function(pos, node)
-   		if minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z}).name == "air" then
-   			conifers:make_conifer(pos, math.random(0, 1))
-   		end
+	action = function(pos)
+		minetest.delay_function(INTERVAL-1, conifer_abm_sapling_delay, pos)
 	end
 })
-
--- Should we remove all the trees above the conifers altitude?
-if REMOVE_TREES == true then
-	minetest.register_abm({
-		nodenames = {
-			"default:tree", 
-			"default:leaves"
-		},
-		interval = INTERVAL/100,
-		chance = 1,
-		
-		action = function(pos, node)
-			if minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z}).name == "air"
-			and pos.y >= CONIFERS_ALTITUDE then
-				minetest.add_node(pos , {name = "air"})
-			end
-		end
-	})
-end
 
 
 
@@ -296,7 +305,7 @@ function conifers:is_node_in_cube(nodenames, pos, size)
 	for x = pos.x-size, pos.x+size do
 		for y = pos.y-hs, pos.y+hs do
 			for z = pos.z-size, pos.z+size do
-				n = minetest.get_node_or_nil({x=x, y=y, z=z})
+				local n = minetest.get_node_or_nil({x=x, y=y, z=z})
 				if n == nil
 				or n.name == 'ignore'
 				or conifers:table_contains(nodenames, n.name) then
@@ -307,6 +316,8 @@ function conifers:is_node_in_cube(nodenames, pos, size)
 	end
 	return false
 end
+
+local area, nodes
 
 --
 -- are_leaves_surrounded(position)
