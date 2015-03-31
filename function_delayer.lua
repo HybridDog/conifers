@@ -25,7 +25,7 @@ minetest.register_globalstep(function(dtime)
 	end
 
 	-- get the start time
-	local ts = tonumber(os.clock())
+	local ts = tonumber(os.clock())-dtime
 
 	-- execute expired functions
 	local n = 1
