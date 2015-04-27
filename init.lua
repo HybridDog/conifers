@@ -175,6 +175,7 @@ conifers_c_dirt_with_grass = minetest.get_content_id("default:dirt_with_grass")
 conifers_c_con_trunk = minetest.get_content_id("conifers:trunk")
 conifers_c_con_leaves = minetest.get_content_id("conifers:leaves")
 conifers_c_con_leaves_special = minetest.get_content_id("conifers:leaves_special")
+conifers_c_con_sapling = minetest.get_content_id("conifers:sapling")
 
 
 --
