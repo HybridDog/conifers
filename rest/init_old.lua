@@ -49,14 +49,14 @@ conifers = {}
 --
 minetest.register_node("conifers:trunk", {
 	description = "Conifer trunk",
-	tile_images = { 
-		"conifers_trunktop.png", 
-		"conifers_trunktop.png", 
-		"conifers_trunk.png", 
+	tile_images = {
+		"conifers_trunktop.png",
+		"conifers_trunktop.png",
+		"conifers_trunk.png",
 	},
 	--inventory_image = minetest.inventorycube(
-		--"conifers_trunktop.png", 
-		--"conifers_trunk.png", 
+		--"conifers_trunktop.png",
+		--"conifers_trunk.png",
 		--"conifers_trunk.png"
 	--),
 	paramtype = "facedir_simple",
@@ -74,12 +74,12 @@ minetest.register_node("conifers:trunk", {
 local tex_reversed_trunk = "conifers_trunk.png^[transformR90"
 minetest.register_node("conifers:trunk_reversed", {
 	description = "Conifer reversed trunk",
-	tile_images = { 
-		tex_reversed_trunk, 
+	tile_images = {
 		tex_reversed_trunk,
-		"conifers_trunktop.png", 
-		"conifers_trunktop.png", 
-		tex_reversed_trunk, 
+		tex_reversed_trunk,
+		"conifers_trunktop.png",
+		"conifers_trunktop.png",
+		tex_reversed_trunk,
 	},
 	--inventory_image = minetest.inventorycube(
 		--"conifers_trunk.png",
@@ -218,7 +218,7 @@ minetest.register_abm({
 	nodenames = "default:dirt_with_grass",
 	interval = INTERVAL,
 	chance = 200.2,
-	
+
 	action = function(pos, node)
 		local p = {x=pos.x, y=pos.y+1, z=pos.z}
    		if minetest.get_node(p).name == "air"
@@ -234,7 +234,7 @@ minetest.register_abm({
 	nodenames = "conifers:sapling",
 	interval = INTERVAL,
 	chance = SAPLING_CHANCE,
-	
+
 	action = function(pos, node)
    		if minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z}).name == "air" then
    			conifers:make_conifer(pos, math.random(0, 1))
@@ -246,12 +246,12 @@ minetest.register_abm({
 if REMOVE_TREES == true then
 	minetest.register_abm({
 		nodenames = {
-			"default:tree", 
+			"default:tree",
 			"default:leaves"
 		},
 		interval = INTERVAL/100,
 		chance = 1,
-		
+
 		action = function(pos, node)
 			if minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z}).name == "air"
 			and pos.y >= CONIFERS_ALTITUDE then
@@ -314,7 +314,7 @@ end
 --  - leaves
 --  - special leaves
 --
--- If a leaves block is surrounded by the blocks above, 
+-- If a leaves block is surrounded by the blocks above,
 -- it can be placed.
 -- Otherwise, it will replace blocks we want to keep.
 --
@@ -323,8 +323,8 @@ function conifers:are_leaves_surrounded(pos)
 	-- Check if a leaves block does not interfer with something else than the air or another leaves block.
 	--
 	local replacable_nodes = {
-		"air", 
-		"conifers:leaves", 
+		"air",
+		"conifers:leaves",
 		"conifers:leaves_special"
 	}
 
@@ -374,7 +374,7 @@ function conifers:make_leaves(c, radius_min, radius_max, special)
 	for r = radius_min, radius_max do
 		local m_x = 0
 		local m_z = r
-		local m_m = 5 - 4 * r		
+		local m_m = 5 - 4 * r
 		while m_x <= m_z do
 			if radius_max > 1 then
 				if r == 1 then
@@ -401,7 +401,7 @@ function conifers:make_leaves(c, radius_min, radius_max, special)
 					conifers:add_leaves_block({x = m_x + c.x, 	y = c.y, z = -m_z + c.z}, special)
 					conifers:add_leaves_block({x = m_z + c.x, 	y = c.y, z = -m_x + c.z}, special)
 					conifers:add_leaves_block({x = -m_x + c.x, 	y = c.y, z = -m_z + c.z}, special)
-					conifers:add_leaves_block({x = -m_z + c.x, 	y = c.y, z = -m_x + c.z}, special)	
+					conifers:add_leaves_block({x = -m_z + c.x, 	y = c.y, z = -m_x + c.z}, special)
 				end
 			else
 				-- Put a small circle of leaves around the trunk.
@@ -445,7 +445,7 @@ function conifers:make_conifer(pos, conifer_type)
 			--minetest.add_node(pos , {name = "air"})
 		--end
 	end
-	
+
 	local height = math.random(TRUNK_MINHEIGHT, TRUNK_MAXHEIGHT) -- Random height of the conifer.
 
 	-- Let's check if we can grow a tree here.

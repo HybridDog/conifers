@@ -40,14 +40,14 @@ conifers = {}
 --
 minetest.register_node("conifers:trunk", {
 	description = "Conifer trunk",
-	tile_images = { 
-		"conifers_trunktop.png", 
-		"conifers_trunktop.png", 
-		"conifers_trunk.png", 
+	tile_images = {
+		"conifers_trunktop.png",
+		"conifers_trunktop.png",
+		"conifers_trunk.png",
 	},
 	--inventory_image = minetest.inventorycube(
-		--"conifers_trunktop.png", 
-		--"conifers_trunk.png", 
+		--"conifers_trunktop.png",
+		--"conifers_trunk.png",
 		--"conifers_trunk.png"
 	--),
 	paramtype = "facedir_simple",
@@ -65,12 +65,12 @@ minetest.register_node("conifers:trunk", {
 local tex_reversed_trunk = "conifers_trunk.png^[transformR90"
 minetest.register_node("conifers:trunk_reversed", {
 	description = "Conifer reversed trunk",
-	tile_images = { 
-		tex_reversed_trunk, 
+	tile_images = {
 		tex_reversed_trunk,
-		"conifers_trunktop.png", 
-		"conifers_trunktop.png", 
-		tex_reversed_trunk, 
+		tex_reversed_trunk,
+		"conifers_trunktop.png",
+		"conifers_trunktop.png",
+		tex_reversed_trunk,
 	},
 	--inventory_image = minetest.inventorycube(
 		--"conifers_trunk.png",
@@ -242,7 +242,7 @@ minetest.register_abm({
 	nodenames = "default:dirt_with_grass",
 	interval = INTERVAL,
 	chance = 9.1,
-	
+
 	action = function(pos)
 		minetest.delay_function(INTERVAL-1, conifer_abm_rand_delay, pos)
 	end
@@ -268,7 +268,7 @@ minetest.register_abm({
 	nodenames = "conifers:sapling",
 	interval = INTERVAL,
 	chance = SAPLING_CHANCE,
-	
+
 	action = function(pos)
 		minetest.delay_function(INTERVAL-1, conifer_abm_sapling_delay, pos)
 	end
@@ -329,7 +329,7 @@ local area, nodes
 --  - leaves
 --  - special leaves
 --
--- If a leaves block is surrounded by the blocks above, 
+-- If a leaves block is surrounded by the blocks above,
 -- it can be placed.
 -- Otherwise, it will replace blocks we want to keep.
 --
@@ -400,7 +400,7 @@ function conifers:make_leaves(c, radius_min, radius_max, special)
 	for r = radius_min, radius_max do
 		local m_x = 0
 		local m_z = r
-		local m_m = 5 - 4 * r		
+		local m_m = 5 - 4 * r
 		while m_x <= m_z do
 			if r == 1 then
 				-- Add a square of leaves (fixing holes near the trunk).
