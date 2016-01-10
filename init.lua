@@ -51,7 +51,7 @@ minetest.register_node("conifers:trunk", {
 		--"conifers_trunk.png"
 	--),
 	paramtype = "facedir_simple",
-	material = minetest.digprop_woodlike(1.0),
+	--material = minetest.digprop_woodlike(1.0),
 	groups = {
 		tree = 1,
 		snappy = 2,
@@ -78,7 +78,7 @@ minetest.register_node("conifers:trunk_reversed", {
 		--"conifers_trunk.png"
 	--),
 	paramtype = "facedir_simple",
-	material = minetest.digprop_woodlike(1.0),
+	--material = minetest.digprop_woodlike(1.0),
 	legacy_facedir_simple = true,
 	groups = {
 		tree = 1,
