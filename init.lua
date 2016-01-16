@@ -21,6 +21,7 @@ local conifers_seed = 1435
 
 
 if not minetest.delay_function then
+	minetest.log("error", "[conifers] function delayer mod not found, own one is used instead")
 	dofile(minetest.get_modpath("conifers").."/function_delayer.lua")
 end
 
@@ -107,13 +108,13 @@ minetest.register_node("conifers:leaves", {
 		items = {
 			{
 				-- player will get sapling with 1/20 chance
-				items = {'conifers:sapling'},
+				items = {"conifers:sapling"},
 				rarity = 20,
 			},
 			{
 				-- player will get leaves only if he get no saplings,
 				-- this is because max_items is 1
-				items = {'conifers:leaves'},
+				items = {"conifers:leaves"},
 			}
 		}
 	},
@@ -137,13 +138,13 @@ minetest.register_node("conifers:leaves_special", {
 		items = {
 			{
 				-- player will get sapling with 1/20 chance
-				items = {'conifers:sapling'},
+				items = {"conifers:sapling"},
 				rarity = 20,
 			},
 			{
 				-- player will get leaves only if he get no saplings,
 				-- this is because max_items is 1
-				items = {'conifers:leaves'},
+				items = {"conifers:leaves"},
 			}
 		}
 	},
@@ -197,16 +198,16 @@ minetest.register_craft({
 })
 
 minetest.register_craft({
-	output = 'default:wood 4',
+	output = "default:wood 4",
 	recipe = {
-		{'conifers:trunk'}
+		{"conifers:trunk"}
 	}
 })
 
 minetest.register_craft({
-	output = 'default:wood 4',
+	output = "default:wood 4",
 	recipe = {
-		{'conifers:trunk_reversed'}
+		{"conifers:trunk_reversed"}
 	}
 })
 
@@ -242,7 +243,7 @@ minetest.register_abm({
 	nodenames = "default:dirt_with_grass",
 	interval = INTERVAL,
 	chance = 9.1,
-
+	catch_up = false,
 	action = function(pos)
 		minetest.delay_function(INTERVAL-1, conifer_abm_rand_delay, pos)
 	end
@@ -308,7 +309,7 @@ function conifers:is_node_in_cube(nodenames, pos, size)
 			for z = pos.z-size, pos.z+size do
 				local n = minetest.get_node_or_nil({x=x, y=y, z=z})
 				if n == nil
-				or n.name == 'ignore'
+				or n.name == "ignore"
 				or conifers:table_contains(nodenames, n.name) then
 					return true
 				end
@@ -323,7 +324,7 @@ local area, nodes
 --
 -- are_leaves_surrounded(position)
 --
--- Return a boolean value set to 'true' if a leaves block is surrounded
+-- Return a boolean value set to "true" if a leaves block is surrounded
 -- by something else than
 --  - air
 --  - leaves
@@ -384,7 +385,7 @@ end
 --
 -- make_leaves(middle point, min radius, max radius, type of leaves)
 --
--- Make a circle of leaves with a center given by 'middle point'.
+-- Make a circle of leaves with a center given by "middle point".
 -- Types of leaves are:
 -- 	0: dark leaves
 --	1: bright leaves (special)
@@ -434,6 +435,16 @@ function conifers:make_leaves(c, radius_min, radius_max, special)
 	end
 end
 
+local function log(txt)
+	minetest.log("action", "[conifers] "..txt)
+end
+
+local function delayed_map_update(manip)
+	local t1 = os.clock()
+	manip:update_map()
+	log(string.format("map updated after ca. %.2fs", os.clock() - t1))
+end
+
 --
 -- make_conifer(position, type)
 --
@@ -470,7 +481,7 @@ function conifers:make_conifer(pos, conifer_type)
 	end
 
 	-- Let's check if we can grow a tree here.
-	-- That means, we must have a column of 'height' high which contains
+	-- That means, we must have a column of "height" high which contains
 	-- only air.
 	for j = 1, height - 1 do -- Start from 1 so we can grow a sapling.
 		if nodes[area:index(pos.x, pos.y+j, pos.z)] ~= conifers_c_air then
@@ -524,13 +535,11 @@ function conifers:make_conifer(pos, conifer_type)
 
 	manip:set_data(nodes)
 	manip:write_to_map()
-	print (string.format('[conifers] A conifer has grown at '..
-		'('..pos.x..','..pos.y..','..pos.z..')'..
-		' with a height of '..height..
-		' after ca. %.2fs', os.clock() - t1)
+	log(string.format("A conifer has grown at "..
+		"("..pos.x..","..pos.y..","..pos.z..")"..
+		" with a height of "..height..
+		" after ca. %.2fs", os.clock() - t1)
 	)	-- Blahblahblah
-	local t1 = os.clock()
-	manip:update_map()
-	print (string.format('[conifers] map updated after ca. %.2fs', os.clock() - t1))
+	minetest.delay_function(16384, delayed_map_update, manip)
 	return true
 end
