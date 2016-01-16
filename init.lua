@@ -46,12 +46,7 @@ minetest.register_node("conifers:trunk", {
 		"conifers_trunktop.png",
 		"conifers_trunk.png",
 	},
-	--inventory_image = minetest.inventorycube(
-		--"conifers_trunktop.png",
-		--"conifers_trunk.png",
-		--"conifers_trunk.png"
-	--),
-	paramtype = "facedir_simple",
+	paramtype2 = "facedir",
 	--material = minetest.digprop_woodlike(1.0),
 	groups = {
 		tree = 1,
@@ -60,35 +55,8 @@ minetest.register_node("conifers:trunk", {
 		oddly_breakable_by_hand = 1,
 		flammable = 2
 	},
-	sounds = default.node_sound_wood_defaults()
-})
-
-local tex_reversed_trunk = "conifers_trunk.png^[transformR90"
-minetest.register_node("conifers:trunk_reversed", {
-	description = "Conifer reversed trunk",
-	tiles = {
-		tex_reversed_trunk,
-		tex_reversed_trunk,
-		"conifers_trunktop.png",
-		"conifers_trunktop.png",
-		tex_reversed_trunk,
-	},
-	--inventory_image = minetest.inventorycube(
-		--"conifers_trunk.png",
-		--"conifers_trunktop.png",
-		--"conifers_trunk.png"
-	--),
-	paramtype = "facedir_simple",
-	--material = minetest.digprop_woodlike(1.0),
-	legacy_facedir_simple = true,
-	groups = {
-		tree = 1,
-		snappy = 2,
-		choppy = 2,
-		oddly_breakable_by_hand = 1,
-		flammable = 2
-	},
-	sounds = default.node_sound_wood_defaults()
+	sounds = default.node_sound_wood_defaults(),
+	on_place = minetest.rotate_node,
 })
 
 minetest.register_node("conifers:leaves", {
@@ -182,32 +150,11 @@ conifers_c_con_sapling = minetest.get_content_id("conifers:sapling")
 --
 -- Craft definitions
 --
-minetest.register_craft({
-	output = "conifers:trunk_reversed 2",
-	recipe = {
-		{"conifers:trunk", "conifers:trunk"},
-	}
-})
-
-minetest.register_craft({
-	output = "conifers:trunk 2",
-	recipe = {
-		{"conifers:trunk_reversed"},
-		{"conifers:trunk_reversed"}
-	}
-})
 
 minetest.register_craft({
 	output = "default:wood 4",
 	recipe = {
 		{"conifers:trunk"}
-	}
-})
-
-minetest.register_craft({
-	output = "default:wood 4",
-	recipe = {
-		{"conifers:trunk_reversed"}
 	}
 })
 
@@ -543,3 +490,36 @@ function conifers:make_conifer(pos, conifer_type)
 	minetest.delay_function(16384, delayed_map_update, manip)
 	return true
 end
+
+
+-- legacy
+
+minetest.register_node("conifers:trunk_reversed", {
+	description = "Conifer reversed trunk",
+	tiles = {"conifers_trunk.png"},
+	drop = "conifers:trunk",
+	groups = {not_in_creative_inventory = 1},
+	sounds = default.node_sound_wood_defaults(),
+	on_place = function(stack)
+		local backup = ItemStack(stack)
+		if stack:set_name("conifers:trunk") then
+			return stack
+		end
+		return backup
+	end
+})
+
+minetest.register_craft({
+	output = "conifers:trunk",
+	recipe = {{"conifers:trunk_reversed"}}
+})
+
+minetest.register_abm({
+	nodenames = {"conifers:trunk_reversed"},
+	interval = 1,
+	chance = 1,
+	action = function(pos, node)
+		minetest.set_node(pos, {name="conifers:trunk", param2=12})
+		log("legacy: a horizontal tree node became changed at "..minetest.pos_to_string(pos))
+	end
+})
