@@ -26,7 +26,7 @@ if not minetest.delay_function then
 end
 
 
-conifers = {}
+local conifers = {}
 
 
 
