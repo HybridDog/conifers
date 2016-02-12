@@ -307,14 +307,18 @@ end
 --	1: bright leaves (special)
 --
 function conifers:add_leaves_block(pos, special, near_trunk)
-	if (not conifers:are_leaves_surrounded(pos))
-	or near_trunk then
-		local p_pos = area:index(pos.x, pos.y, pos.z)
-		if special == 0 then
-			nodes[p_pos] = conifers_c_con_leaves
-		else
-			nodes[p_pos] = conifers_c_con_leaves_special
-		end
+	if conifers:are_leaves_surrounded(pos)
+	and not near_trunk then
+		return
+	end
+	local p_pos = area:index(pos.x, pos.y, pos.z)
+	if nodes[p_pos] ~= conifers_c_air then
+		return
+	end
+	if special == 0 then
+		nodes[p_pos] = conifers_c_con_leaves
+	else
+		nodes[p_pos] = conifers_c_con_leaves_special
 	end
 end
 
