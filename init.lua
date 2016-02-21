@@ -20,12 +20,6 @@ local conifers_seed = 1435
 -- End of structure definitions.
 
 
-if not minetest.delay_function then
-	minetest.log("error", "[conifers] function delayer mod not found, own one is used instead")
-	dofile(minetest.get_modpath("conifers").."/function_delayer.lua")
-end
-
-
 local conifers = {}
 
 
