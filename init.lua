@@ -180,12 +180,20 @@ local function conifer_abm_rand_delay(pos)
 	end
 end
 
+local can_grass_abm = true
 minetest.register_abm({
 	nodenames = "default:dirt_with_grass",
 	interval = INTERVAL,
 	chance = 9.1,
 	catch_up = false,
 	action = function(pos)
+		if not can_grass_abm then
+			return
+		end
+		can_grass_abm = false
+		minetest.after(INTERVAL, function()
+			can_grass_abm = true
+		end)
 		minetest.delay_function(INTERVAL-1, conifer_abm_rand_delay, pos)
 	end
 })
