@@ -130,15 +130,15 @@ minetest.register_node("conifers:sapling", {
 })
 
 
-conifers_c_air = minetest.get_content_id("air")
-conifers_c_tree = minetest.get_content_id("default:tree")
-conifers_c_leaves = minetest.get_content_id("default:leaves")
-conifers_c_dirt_with_grass = minetest.get_content_id("default:dirt_with_grass")
+conifers_c_air = minetest.get_content_id"air"
+conifers_c_tree = minetest.get_content_id"default:tree"
+conifers_c_leaves = minetest.get_content_id"default:leaves"
+conifers_c_dirt_with_grass = minetest.get_content_id"default:dirt_with_grass"
 
-conifers_c_con_trunk = minetest.get_content_id("conifers:trunk")
-conifers_c_con_leaves = minetest.get_content_id("conifers:leaves")
-conifers_c_con_leaves_special = minetest.get_content_id("conifers:leaves_special")
-conifers_c_con_sapling = minetest.get_content_id("conifers:sapling")
+conifers_c_con_trunk = minetest.get_content_id"conifers:trunk"
+conifers_c_con_leaves = minetest.get_content_id"conifers:leaves"
+conifers_c_con_leaves_special = minetest.get_content_id"conifers:leaves_special"
+conifers_c_con_sapling = minetest.get_content_id"conifers:sapling"
 
 
 --
@@ -291,8 +291,8 @@ function conifers:are_leaves_surrounded(pos)
 
 	-- Let's check if the neighboring node is a replacable node.
 	for i = -1,1,2 do
-		if (not conifers:table_contains(replacable_nodes, nodes[area:index(pos.x+i, pos.y, pos.z)]))
-		or (not conifers:table_contains(replacable_nodes, nodes[area:index(pos.x, pos.y, pos.z+i)])) then
+		if not conifers:table_contains(replacable_nodes, nodes[area:index(pos.x+i, pos.y, pos.z)])
+		or not conifers:table_contains(replacable_nodes, nodes[area:index(pos.x, pos.y, pos.z+i)]) then
 			return true
 		end
 	end
@@ -371,7 +371,7 @@ function conifers:make_leaves(c, radius_min, radius_max, special)
 			else
 				for i = -1,1,2 do
 					for j = -1,1,2 do
-						for _,a in ipairs({{m_x, m_z}, {m_z, m_x}}) do
+						for _,a in ipairs{{m_x, m_z}, {m_z, m_x}} do
 							conifers:add_leaves_block({x=j*a[1]+c.x, y=c.y, z=i*a[2]+c.z}, special)
 						end
 					end
@@ -415,7 +415,7 @@ function conifers:make_conifer(pos, conifer_type)
 	local emerged_pos1, emerged_pos2 = manip:read_from_map({x=pos.x-vwidth, y=pos.y, z=pos.z-vwidth},
 		{x=pos.x+vwidth, y=pos.y+height+1, z=pos.z+vwidth})
 
-	area = VoxelArea:new({MinEdge=emerged_pos1, MaxEdge=emerged_pos2})
+	area = VoxelArea:new{MinEdge=emerged_pos1, MaxEdge=emerged_pos2}
 	nodes = manip:get_data()
 
 	-- Check if we can gros a conifer at this place.
@@ -508,7 +508,7 @@ minetest.register_node("conifers:trunk_reversed", {
 	sounds = default.node_sound_wood_defaults(),
 	on_place = function(stack)
 		local backup = ItemStack(stack)
-		if stack:set_name("conifers:trunk") then
+		if stack:set_name"conifers:trunk" then
 			return stack
 		end
 		return backup
