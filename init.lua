@@ -256,7 +256,7 @@ function conifers:is_node_in_cube(nodenames, pos, size)
 	for x = pos.x-size, pos.x+size do
 		for y = pos.y-hs, pos.y+hs do
 			for z = pos.z-size, pos.z+size do
-				local n = minetest.get_node_or_nil({x=x, y=y, z=z})
+				local n = minetest.get_node_or_nil{x=x, y=y, z=z}
 				if n == nil
 				or n.name == "ignore"
 				or conifers:table_contains(nodenames, n.name) then
