@@ -419,12 +419,12 @@ function conifers:make_conifer(pos, conifer_type)
 	nodes = manip:get_data()
 
 	-- Check if we can gros a conifer at this place.
-	local p_pos = area:index(pos.x, pos.y, pos.z)
-	local d_p_pos = nodes[p_pos]
+	local vi = area:indexp(pos)
+	local id = nodes[vi]
 
-	if nodes[area:index(pos.x, pos.y-1, pos.z)] ~= conifers_c_dirt_with_grass
-	and (d_p_pos ~= conifers_c_air
-		or d_p_pos ~= conifers_c_con_sapling
+	if nodes[vi - area.ystride] ~= conifers_c_dirt_with_grass
+	and (id ~= conifers_c_air
+		or id ~= conifers_c_con_sapling
 	) then
 		return false
 	--else
@@ -436,11 +436,13 @@ function conifers:make_conifer(pos, conifer_type)
 	-- Let's check if we can grow a tree here.
 	-- That means, we must have a column of "height" high which contains
 	-- only air.
-	for j = 1, height - 1 do -- Start from 1 so we can grow a sapling.
-		if nodes[area:index(pos.x, pos.y+j, pos.z)] ~= conifers_c_air then
+	local ti = vi + area.ystride -- Start from 1 so we can grow a sapling.
+	for _ = 1, height - 1 do
+		if nodes[ti] ~= conifers_c_air then
 			-- Abort
 			return false
 		end
+		ti = ti + area.ystride
 	end
 
 	local leaves_height = math.random(LEAVES_MINHEIGHT, LEAVES_MAXHEIGHT) -- Level from where the leaves grow.
@@ -453,7 +455,7 @@ function conifers:make_conifer(pos, conifer_type)
 	for i = 0, height - 1 do
 		current_block = {x=pos.x, y=pos.y+i, z=pos.z}
 		-- Put a trunk block.
-		nodes[area:index(pos.x, pos.y+i, pos.z)] = conifers_c_con_trunk
+		nodes[vi] = conifers_c_con_trunk
 		-- Put some leaves.
 		if i >= leaves_height then
 			-- Put some leaves.
@@ -480,6 +482,7 @@ function conifers:make_conifer(pos, conifer_type)
 				end
 			end
 		end
+		vi = vi + area.ystride
 	end
 
 	-- Put a top leaves block.
