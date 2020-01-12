@@ -2,7 +2,7 @@
 --
 -- CONIFERS MOD
 -- For Minetest
--- Created by Cisoun (cysoun[at]gmail.com).
+-- Created originally by Cisoun (cysoun[at]gmail.com).
 --
 -- This mod adds some conifers randomly at a certain altitude.
 -- There are two types of conifers: regular and narrow.
@@ -12,5 +12,8 @@
 --------------------------------------------------------------------------------
 
 
+For a description of this mod, see
+https://forum.minetest.net/viewtopic.php?f=9&t=10268&p=156575.
+
 TODO:
-— add a TODO list
+* Move settings to settingtypes.txt
