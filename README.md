@@ -1,3 +1,4 @@
+```
 --------------------------------------------------------------------------------
 --
 -- CONIFERS MOD
@@ -10,7 +11,7 @@
 -- choose if you want to keep normal trees above this altitude.
 --
 --------------------------------------------------------------------------------
-
+```
 
 For a description of this mod, see
 https://forum.minetest.net/viewtopic.php?f=9&t=10268&p=156575.
